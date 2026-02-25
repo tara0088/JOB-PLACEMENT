@@ -631,6 +631,169 @@
 }
 
 /* --------------------------------------------------------------------------
+   DIGEST PAGE
+   -------------------------------------------------------------------------- */
+.digest-page {
+  max-width: var(--max-width-container);
+  margin: 0 auto;
+  padding: var(--space-3) 0;
+}
+
+.digest-page-header {
+  text-align: center;
+  margin-bottom: var(--space-4);
+}
+
+.digest-blocking-message {
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+.digest-generate-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-5) 0;
+}
+
+.digest-simulation-note {
+  text-align: center;
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+  font-style: italic;
+  margin-top: var(--space-3);
+}
+
+.digest-email-container {
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+.digest-email-card {
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+}
+
+.digest-email-header {
+  background-color: var(--color-accent);
+  color: var(--color-white);
+  padding: var(--space-3);
+  text-align: center;
+}
+
+.digest-email-title {
+  font-family: var(--font-serif);
+  font-size: var(--text-xl);
+  font-weight: var(--font-semibold);
+  margin: 0 0 var(--space-1) 0;
+  color: var(--color-white);
+}
+
+.digest-email-date {
+  font-size: var(--text-base);
+  margin: 0;
+  opacity: 0.9;
+}
+
+.digest-email-jobs {
+  padding: var(--space-3);
+}
+
+.digest-email-job {
+  padding: var(--space-2) 0;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.digest-email-job:last-child {
+  border-bottom: none;
+}
+
+.digest-email-job-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  margin-bottom: calc(var(--space-1) / 2);
+}
+
+.digest-email-job-number {
+  font-size: var(--text-sm);
+  font-weight: var(--font-semibold);
+  color: var(--color-text-muted);
+  min-width: 24px;
+}
+
+.digest-email-job-title {
+  font-family: var(--font-serif);
+  font-size: var(--text-lg);
+  font-weight: var(--font-semibold);
+  color: var(--color-text-primary);
+  margin: 0;
+  flex: 1;
+}
+
+.digest-email-job-score {
+  font-size: var(--text-xs);
+  font-weight: var(--font-semibold);
+  padding: calc(var(--space-1) / 2) var(--space-1);
+  border-radius: var(--radius-sm);
+  min-width: 40px;
+  text-align: center;
+}
+
+.digest-email-job-details {
+  margin-left: 32px;
+  margin-bottom: var(--space-1);
+}
+
+.digest-email-job-company {
+  font-size: var(--text-base);
+  color: var(--color-text-primary);
+  font-weight: var(--font-medium);
+  margin: 0 0 calc(var(--space-1) / 4) 0;
+}
+
+.digest-email-job-meta {
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+  margin: 0;
+}
+
+.digest-email-job-action {
+  margin-left: 32px;
+}
+
+.digest-email-footer {
+  background-color: var(--color-background);
+  padding: var(--space-2) var(--space-3);
+  text-align: center;
+  border-top: 1px solid var(--color-border);
+}
+
+.digest-email-footer p {
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+  margin: 0;
+}
+
+.digest-actions-bar {
+  display: flex;
+  justify-content: center;
+  gap: var(--space-2);
+  margin-top: var(--space-3);
+  padding: 0 var(--space-3);
+}
+
+.digest-actions {
+  display: flex;
+  justify-content: center;
+  margin-top: var(--space-3);
+}
+
+/* --------------------------------------------------------------------------
    JOBS GRID
    -------------------------------------------------------------------------- */
 .jobs-grid {
