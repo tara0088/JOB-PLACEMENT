@@ -1,15 +1,22 @@
 import type { FC } from 'react';
-import { useState, useMemo, useCallback } from 'react';
+import { useState, useMemo, useCallback, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { jobs } from '../data/jobs';
-import type { Job, Filters } from '../types/job';
+import type { Filters } from '../types/job';
+import type { JobWithMatch } from '../utils/matchScore';
+import { addMatchScores } from '../utils/matchScore';
 import { JobCard, JobModal, FilterBar } from '../components/jobs';
 import { EmptyState } from '../components/feedback/EmptyState';
+import { Alert } from '../components/feedback/Alert';
 import { getSavedJobs } from '../utils/storage';
+import { getPreferences, hasPreferences } from '../utils/preferences';
 
 export const DashboardPage: FC = () => {
-  const [selectedJob, setSelectedJob] = useState<Job | null>(null);
+  const [selectedJob, setSelectedJob] = useState<JobWithMatch | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [, setSavedJobIds] = useState<string[]>(getSavedJobs());
+  const [showOnlyMatches, setShowOnlyMatches] = useState(false);
+  const [prefsExist, setPrefsExist] = useState(hasPreferences());
   const [filters, setFilters] = useState<Filters>({
     keyword: '',
     location: '',
@@ -19,10 +26,27 @@ export const DashboardPage: FC = () => {
     sort: 'latest',
   });
 
-  const filteredJobs = useMemo(() => {
-    let result = [...jobs];
+  // Re-check preferences on mount and when modal closes
+  useEffect(() => {
+    setPrefsExist(hasPreferences());
+  }, [isModalOpen]);
 
-    // Keyword filter
+  // Calculate match scores for all jobs
+  const jobsWithMatch = useMemo(() => {
+    const preferences = getPreferences();
+    return addMatchScores(jobs, preferences);
+  }, []);
+
+  const filteredJobs = useMemo(() => {
+    const preferences = getPreferences();
+    let result = [...jobsWithMatch];
+
+    // Apply "show only matches" filter first
+    if (showOnlyMatches) {
+      result = result.filter((job) => job.matchScore >= preferences.minMatchScore);
+    }
+
+    // Keyword filter (title or company) - AND logic
     if (filters.keyword) {
       const keyword = filters.keyword.toLowerCase();
       result = result.filter(
@@ -32,22 +56,22 @@ export const DashboardPage: FC = () => {
       );
     }
 
-    // Location filter
+    // Location filter - AND logic
     if (filters.location) {
       result = result.filter((job) => job.location === filters.location);
     }
 
-    // Mode filter
+    // Mode filter - AND logic
     if (filters.mode) {
       result = result.filter((job) => job.mode === filters.mode);
     }
 
-    // Experience filter
+    // Experience filter - AND logic
     if (filters.experience) {
       result = result.filter((job) => job.experience === filters.experience);
     }
 
-    // Source filter
+    // Source filter - AND logic
     if (filters.source) {
       result = result.filter((job) => job.source === filters.source);
     }
@@ -61,7 +85,6 @@ export const DashboardPage: FC = () => {
         result.sort((a, b) => b.postedDaysAgo - a.postedDaysAgo);
         break;
       case 'salary-high':
-        // Approximate sorting by parsing salary ranges
         result.sort((a, b) => {
           const getMaxSalary = (salary: string): number => {
             const match = salary.match(/(\d+)/g);
@@ -82,9 +105,9 @@ export const DashboardPage: FC = () => {
     }
 
     return result;
-  }, [filters]);
+  }, [filters, showOnlyMatches, jobsWithMatch]);
 
-  const handleViewJob = useCallback((job: Job) => {
+  const handleViewJob = useCallback((job: JobWithMatch) => {
     setSelectedJob(job);
     setIsModalOpen(true);
   }, []);
@@ -102,6 +125,8 @@ export const DashboardPage: FC = () => {
     }
   }, []);
 
+  const preferences = getPreferences();
+
   return (
     <div className="dashboard-container">
       <div className="dashboard-header">
@@ -111,7 +136,35 @@ export const DashboardPage: FC = () => {
         </p>
       </div>
 
-      <FilterBar filters={filters} onFilterChange={setFilters} />
+      {!prefsExist && (
+        <div className="dashboard-banner">
+          <Alert variant="warning" title="Set your preferences">
+            <Link to="/settings" className="dashboard-banner-link">
+              Set your preferences
+            </Link>{' '}
+            to activate intelligent matching.
+          </Alert>
+        </div>
+      )}
+
+      <div className="dashboard-controls">
+        <FilterBar filters={filters} onFilterChange={setFilters} />
+        
+        <div className="dashboard-toggle">
+          <label className="toggle-label">
+            <input
+              type="checkbox"
+              className="toggle-input"
+              checked={showOnlyMatches}
+              onChange={(e) => setShowOnlyMatches(e.target.checked)}
+            />
+            <span className="toggle-slider"></span>
+            <span className="toggle-text">
+              Show only jobs above my threshold ({preferences.minMatchScore}%)
+            </span>
+          </label>
+        </div>
+      </div>
 
       <div className="dashboard-content">
         {filteredJobs.length > 0 ? (
@@ -127,8 +180,10 @@ export const DashboardPage: FC = () => {
           </div>
         ) : (
           <EmptyState
-            title="No jobs match your search"
-            description="Try adjusting your filters to see more results."
+            title="No roles match your criteria"
+            description="Adjust filters or lower your match threshold to see more results."
+            actionLabel="Go to Settings"
+            onAction={() => window.location.href = '/settings'}
           />
         )}
       </div>

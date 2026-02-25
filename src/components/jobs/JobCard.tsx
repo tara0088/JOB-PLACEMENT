@@ -1,11 +1,12 @@
 import type { FC } from 'react';
-import type { Job } from '../../types/job';
+import type { JobWithMatch } from '../../utils/matchScore';
+import { getMatchScoreColor } from '../../utils/matchScore';
 import { Button } from '../ui/Button';
 import { isJobSaved, saveJob, unsaveJob } from '../../utils/storage';
 
 interface JobCardProps {
-  job: Job;
-  onView: (job: Job) => void;
+  job: JobWithMatch;
+  onView: (job: JobWithMatch) => void;
   onSaveToggle: (jobId: string, isSaved: boolean) => void;
 }
 
@@ -32,11 +33,18 @@ export const JobCard: FC<JobCardProps> = ({ job, onView, onSaveToggle }) => {
     return `${days} days ago`;
   };
 
+  const matchScoreColorClass = getMatchScoreColor(job.matchScore);
+
   return (
     <div className="job-card">
       <div className="job-card-header">
         <div className="job-card-title-section">
-          <h3 className="job-card-title">{job.title}</h3>
+          <div className="job-card-title-row">
+            <h3 className="job-card-title">{job.title}</h3>
+            <span className={`match-score-badge ${matchScoreColorClass}`}>
+              {job.matchScore}%
+            </span>
+          </div>
           <span className="job-card-company">{job.company}</span>
         </div>
         <span className={`job-card-source job-card-source-${job.source.toLowerCase()}`}>

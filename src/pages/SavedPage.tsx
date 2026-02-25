@@ -1,21 +1,25 @@
 import type { FC } from 'react';
 import { useState, useMemo, useCallback } from 'react';
 import { jobs } from '../data/jobs';
-import type { Job } from '../types/job';
+import type { JobWithMatch } from '../utils/matchScore';
+import { addMatchScores } from '../utils/matchScore';
 import { JobCard, JobModal } from '../components/jobs';
 import { EmptyState } from '../components/feedback/EmptyState';
 import { getSavedJobs, unsaveJob } from '../utils/storage';
+import { getPreferences } from '../utils/preferences';
 
 export const SavedPage: FC = () => {
   const [savedJobIds, setSavedJobIds] = useState<string[]>(getSavedJobs());
-  const [selectedJob, setSelectedJob] = useState<Job | null>(null);
+  const [selectedJob, setSelectedJob] = useState<JobWithMatch | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const savedJobs = useMemo(() => {
-    return jobs.filter((job) => savedJobIds.includes(job.id));
+    const preferences = getPreferences();
+    const allJobsWithMatch = addMatchScores(jobs, preferences);
+    return allJobsWithMatch.filter((job) => savedJobIds.includes(job.id));
   }, [savedJobIds]);
 
-  const handleViewJob = useCallback((job: Job) => {
+  const handleViewJob = useCallback((job: JobWithMatch) => {
     setSelectedJob(job);
     setIsModalOpen(true);
   }, []);
