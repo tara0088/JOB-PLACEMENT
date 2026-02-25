@@ -2,11 +2,17 @@ import type { FC } from 'react';
 
 export const ProofPage: FC = () => {
   return (
-    <div className="page-container">
-      <div className="page-content">
+    <div className="proof-container">
+      <div className="proof-header">
         <h1 className="page-title">Proof</h1>
         <p className="page-subtitle">
-          This section will be built in the next step.
+          Collection of artifacts and verification checkpoints.
+        </p>
+      </div>
+
+      <div className="proof-content">
+        <p className="proof-placeholder">
+          This page will contain project artifacts, screenshots, and proof of completion for each development milestone.
         </p>
       </div>
     </div>
